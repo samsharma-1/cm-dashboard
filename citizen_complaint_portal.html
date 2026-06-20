@@ -1,0 +1,575 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.shell{padding:1.5rem 0;font-family:var(--font-sans)}
+.screen{display:none}.screen.active{display:block}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:1.5rem}
+.nav-brand{display:flex;align-items:center;gap:8px}
+.nav-logo{width:28px;height:28px;background:#185FA5;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#E6F1FB;font-size:13px;font-weight:500}
+.nav-title{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.nav-sub{font-size:11px;color:var(--color-text-secondary)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--color-background-info);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--color-text-info);cursor:pointer}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;font-size:13px;font-weight:500;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);cursor:pointer;transition:background .1s}
+.btn:hover{background:var(--color-background-secondary)}
+.btn-primary{background:#185FA5;color:#E6F1FB;border-color:#185FA5}
+.btn-primary:hover{background:#0C447C;border-color:#0C447C;color:#E6F1FB}
+.btn-sm{padding:5px 12px;font-size:12px}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.badge-blue{background:#E6F1FB;color:#0C447C}
+.badge-green{background:#EAF3DE;color:#27500A}
+.badge-amber{background:#FAEEDA;color:#633806}
+.badge-red{background:#FCEBEB;color:#791F1F}
+.badge-gray{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem}
+.section-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);letter-spacing:.04em;margin-bottom:10px;text-transform:uppercase}
+.field-label{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:5px}
+.field-hint{font-size:11px;color:var(--color-text-secondary);margin-bottom:8px}
+input[type=text],input[type=tel],input[type=email],textarea,select{width:100%;font-size:13px;padding:8px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-family:var(--font-sans);outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--color-border-primary)}
+textarea{resize:vertical;min-height:80px}
+.category-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.cat-btn{padding:10px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);cursor:pointer;text-align:center;transition:all .1s;display:flex;flex-direction:column;align-items:center;gap:4px}
+.cat-btn:hover{border-color:var(--color-border-secondary);background:var(--color-background-primary)}
+.cat-btn.selected{border-color:#185FA5;background:#E6F1FB}
+.cat-btn.selected .cat-icon{color:#185FA5}
+.cat-btn.selected .cat-name{color:#0C447C}
+.cat-icon{font-size:20px;color:var(--color-text-secondary)}
+.cat-name{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.priority-row{display:flex;gap:8px;flex-wrap:wrap}
+.priority-chip{padding:6px 14px;border:0.5px solid var(--color-border-tertiary);border-radius:20px;font-size:12px;cursor:pointer;background:var(--color-background-secondary);color:var(--color-text-primary);transition:all .1s}
+.priority-chip.sel-low{background:#EAF3DE;color:#27500A;border-color:#639922}
+.priority-chip.sel-med{background:#FAEEDA;color:#633806;border-color:#BA7517}
+.priority-chip.sel-high{background:#FCEBEB;color:#791F1F;border-color:#E24B4A}
+.stepper{display:flex;align-items:center;gap:0;margin-bottom:1.5rem}
+.step{display:flex;align-items:center;gap:6px;flex:1}
+.step-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.step-num.done{background:#EAF3DE;color:#27500A}
+.step-num.active{background:#185FA5;color:#E6F1FB}
+.step-num.pending{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.step-text{font-size:11px;color:var(--color-text-secondary)}
+.step-text.active{color:var(--color-text-primary);font-weight:500}
+.step-line{height:0.5px;flex:1;background:var(--color-border-tertiary);margin:0 4px}
+.step-line.done{background:#639922}
+.upload-area{border:0.5px dashed var(--color-border-secondary);border-radius:var(--border-radius-md);padding:1.5rem;text-align:center;cursor:pointer;background:var(--color-background-secondary);transition:background .1s}
+.upload-area:hover{background:var(--color-background-primary)}
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:12px;padding-bottom:20px;position:relative}
+.tl-item:last-child{padding-bottom:0}
+.tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.tl-line{position:absolute;left:4px;top:14px;width:1px;bottom:0;background:var(--color-border-tertiary)}
+.tl-item:last-child .tl-line{display:none}
+.tl-title{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.tl-time{font-size:11px;color:var(--color-text-secondary)}
+.tl-body{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.progress-track{height:6px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden;margin:8px 0}
+.progress-fill{height:6px;border-radius:3px;transition:width .4s ease}
+.satisfaction-stars{display:flex;gap:6px}
+.star{font-size:22px;cursor:pointer;color:var(--color-border-secondary);transition:color .1s;line-height:1}
+.star.lit{color:#BA7517}
+.ai-bubble{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:.875rem 1rem;font-size:13px;color:var(--color-text-primary);line-height:1.6;border-left:2px solid #185FA5;border-radius:0 var(--border-radius-lg) var(--border-radius-lg) 0}
+.tab-row{display:flex;gap:4px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1rem}
+.ptab{padding:7px 12px;font-size:13px;color:var(--color-text-secondary);cursor:pointer;border-bottom:2px solid transparent}
+.ptab.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary);font-weight:500}
+.complaint-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem;margin-bottom:8px;cursor:pointer;transition:border-color .1s}
+.complaint-card:hover{border-color:var(--color-border-secondary)}
+.notification-item{display:flex;gap:10px;align-items:start;padding:10px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.notification-item:last-child{border-bottom:none}
+.notif-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+</style>
+
+<div class="shell">
+<h2 class="sr-only">Delhi citizen complaint portal — file, track and manage your civic complaints</h2>
+
+<div class="nav">
+  <div class="nav-brand">
+    <div class="nav-logo"><i class="ti ti-building-community" style="font-size:14px" aria-hidden="true"></i></div>
+    <div>
+      <div class="nav-title">Delhi Seva Portal</div>
+      <div class="nav-sub">Citizen services &nbsp;·&nbsp; दिल्ली सेवा</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="btn btn-sm" onclick="showScreen('home')"><i class="ti ti-home" style="font-size:14px" aria-hidden="true"></i> Home</button>
+    <button class="btn btn-sm" onclick="showScreen('my-complaints')"><i class="ti ti-file-text" style="font-size:14px" aria-hidden="true"></i> My complaints</button>
+    <div class="avatar" onclick="showScreen('profile')" aria-label="Profile">RK</div>
+  </div>
+</div>
+
+<!-- HOME SCREEN -->
+<div class="screen active" id="screen-home">
+  <div style="margin-bottom:1.5rem">
+    <div style="font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">Namaskar, Rajesh <i class="ti ti-hand-stop" style="font-size:16px;color:#BA7517" aria-hidden="true"></i></div>
+    <div style="font-size:13px;color:var(--color-text-secondary)">What can we help you with today?</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:1.5rem">
+    <div class="card" style="cursor:pointer;text-align:center;padding:1.25rem 1rem" onclick="showScreen('file-complaint')">
+      <i class="ti ti-alert-circle" style="font-size:28px;color:#185FA5;display:block;margin-bottom:8px" aria-hidden="true"></i>
+      <div style="font-size:13px;font-weight:500;margin-bottom:3px">File a complaint</div>
+      <div style="font-size:11px;color:var(--color-text-secondary)">Report a civic issue</div>
+    </div>
+    <div class="card" style="cursor:pointer;text-align:center;padding:1.25rem 1rem" onclick="showScreen('track')">
+      <i class="ti ti-map-pin" style="font-size:28px;color:#1D9E75;display:block;margin-bottom:8px" aria-hidden="true"></i>
+      <div style="font-size:13px;font-weight:500;margin-bottom:3px">Track status</div>
+      <div style="font-size:11px;color:var(--color-text-secondary)">Follow your complaint</div>
+    </div>
+    <div class="card" style="cursor:pointer;text-align:center;padding:1.25rem 1rem" onclick="showScreen('my-complaints')">
+      <i class="ti ti-list-check" style="font-size:28px;color:#BA7517;display:block;margin-bottom:8px" aria-hidden="true"></i>
+      <div style="font-size:13px;font-weight:500;margin-bottom:3px">My complaints</div>
+      <div style="font-size:11px;color:var(--color-text-secondary)">View all your cases</div>
+    </div>
+    <div class="card" style="cursor:pointer;text-align:center;padding:1.25rem 1rem" onclick="showScreen('nearby')">
+      <i class="ti ti-map" style="font-size:28px;color:#D85A30;display:block;margin-bottom:8px" aria-hidden="true"></i>
+      <div style="font-size:13px;font-weight:500;margin-bottom:3px">Nearby issues</div>
+      <div style="font-size:11px;color:var(--color-text-secondary)">Issues in your area</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem">
+    <div class="card" style="border-left:3px solid #EF9F27;border-radius:0 var(--border-radius-lg) var(--border-radius-lg) 0">
+      <div style="font-size:11px;color:#633806;font-weight:500;margin-bottom:4px"><i class="ti ti-clock" style="font-size:13px" aria-hidden="true"></i> SLA update</div>
+      <div style="font-size:13px;color:var(--color-text-primary)">Your water complaint <span style="font-weight:500">CMP-4021</span> is due today — department has been notified.</div>
+    </div>
+    <div class="card" style="border-left:3px solid #1D9E75;border-radius:0 var(--border-radius-lg) var(--border-radius-lg) 0">
+      <div style="font-size:11px;color:#27500A;font-weight:500;margin-bottom:4px"><i class="ti ti-check" style="font-size:13px" aria-hidden="true"></i> Resolved</div>
+      <div style="font-size:13px;color:var(--color-text-primary)">Pothole complaint <span style="font-weight:500">CMP-3987</span> marked resolved. Rate your experience.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:500">Active in your area — Rohini Ph4</div>
+      <span class="badge badge-amber">12 open issues</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+        <span style="color:var(--color-text-secondary)"><i class="ti ti-droplet" aria-hidden="true"></i> Water supply disruption</span>
+        <span class="badge badge-red">Critical · 3 days</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+        <span style="color:var(--color-text-secondary)"><i class="ti ti-bulb" aria-hidden="true"></i> Streetlight outage</span>
+        <span class="badge badge-amber">In progress</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+        <span style="color:var(--color-text-secondary)"><i class="ti ti-road" aria-hidden="true"></i> Pothole near school</span>
+        <span class="badge badge-blue">Assigned</span>
+      </div>
+    </div>
+    <button class="btn btn-sm" style="margin-top:10px;width:100%;justify-content:center" onclick="showScreen('nearby')">See all nearby issues</button>
+  </div>
+</div>
+
+<!-- FILE COMPLAINT SCREEN -->
+<div class="screen" id="screen-file-complaint">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem">
+    <button class="btn btn-sm" onclick="showScreen('home')"><i class="ti ti-arrow-left" style="font-size:13px" aria-hidden="true"></i></button>
+    <div style="font-size:16px;font-weight:500">File a complaint</div>
+  </div>
+
+  <div class="stepper" id="form-stepper">
+    <div class="step"><div class="step-num active" id="sn1">1</div><div class="step-text active" id="st1">Category</div></div>
+    <div class="step-line" id="sl1"></div>
+    <div class="step"><div class="step-num pending" id="sn2">2</div><div class="step-text" id="st2">Details</div></div>
+    <div class="step-line" id="sl2"></div>
+    <div class="step"><div class="step-num pending" id="sn3">3</div><div class="step-text" id="st3">Location</div></div>
+    <div class="step-line" id="sl3"></div>
+    <div class="step"><div class="step-num pending" id="sn4">4</div><div class="step-text" id="st4">Review</div></div>
+  </div>
+
+  <!-- Step 1 -->
+  <div id="form-step-1">
+    <div class="section-label">Select issue category</div>
+    <div class="category-grid" id="cat-grid">
+      <div class="cat-btn" onclick="selectCat(this,'water')"><i class="ti ti-droplet cat-icon" aria-hidden="true"></i><span class="cat-name">Water</span></div>
+      <div class="cat-btn" onclick="selectCat(this,'sanitation')"><i class="ti ti-recycle cat-icon" aria-hidden="true"></i><span class="cat-name">Sanitation</span></div>
+      <div class="cat-btn" onclick="selectCat(this,'electricity')"><i class="ti ti-bolt cat-icon" aria-hidden="true"></i><span class="cat-name">Electricity</span></div>
+      <div class="cat-btn" onclick="selectCat(this,'roads')"><i class="ti ti-road cat-icon" aria-hidden="true"></i><span class="cat-name">Roads</span></div>
+      <div class="cat-btn" onclick="selectCat(this,'health')"><i class="ti ti-heart-rate-monitor cat-icon" aria-hidden="true"></i><span class="cat-name">Health</span></div>
+      <div class="cat-btn" onclick="selectCat(this,'other')"><i class="ti ti-dots cat-icon" aria-hidden="true"></i><span class="cat-name">Other</span></div>
+    </div>
+    <div id="ai-suggestion" style="display:none;margin-top:1rem">
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px"><i class="ti ti-sparkles" style="font-size:13px" aria-hidden="true"></i> AI suggestion</div>
+      <div class="ai-bubble">Based on 18 similar reports in Rohini Ph4 this week, this looks like a <strong style="font-weight:500">Water supply</strong> issue. Department <strong style="font-weight:500">DJB</strong> will be assigned. Estimated resolution: <strong style="font-weight:500">2–4 days</strong>.</div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:1rem">
+      <button class="btn btn-primary" onclick="goStep(2)" id="next-step1" style="opacity:.4;pointer-events:none">Next <i class="ti ti-arrow-right" style="font-size:13px" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div id="form-step-2" style="display:none">
+    <div style="margin-bottom:12px">
+      <div class="field-label">Describe the issue</div>
+      <div class="field-hint">Be specific — what exactly is the problem and since when?</div>
+      <textarea id="desc-field" placeholder="E.g. No water supply in my building since 3 days. Ground floor tank is empty. Neighbouring buildings also affected." rows="4"></textarea>
+    </div>
+    <div style="margin-bottom:12px">
+      <div class="field-label">How urgent is this?</div>
+      <div class="priority-row" id="priority-row">
+        <div class="priority-chip" onclick="selectPriority(this,'low')">Low — can wait a few days</div>
+        <div class="priority-chip" onclick="selectPriority(this,'med')">Medium — needs attention soon</div>
+        <div class="priority-chip" onclick="selectPriority(this,'high')">High — immediate action needed</div>
+      </div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div class="field-label">Add photos <span style="font-weight:400;color:var(--color-text-secondary)">(optional)</span></div>
+      <div class="upload-area">
+        <i class="ti ti-camera" style="font-size:24px;color:var(--color-text-secondary);margin-bottom:6px;display:block" aria-hidden="true"></i>
+        <div style="font-size:13px;color:var(--color-text-secondary)">Tap to add photos or video</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">JPG, PNG, MP4 — max 10 MB each</div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:1rem">
+      <button class="btn" onclick="goStep(1)"><i class="ti ti-arrow-left" style="font-size:13px" aria-hidden="true"></i> Back</button>
+      <button class="btn btn-primary" onclick="goStep(3)">Next <i class="ti ti-arrow-right" style="font-size:13px" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div id="form-step-3" style="display:none">
+    <div style="margin-bottom:12px">
+      <div class="field-label">Your location</div>
+      <div class="field-hint">We detected your area. Confirm or correct below.</div>
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;border:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <i class="ti ti-map-pin" style="font-size:16px;color:#185FA5" aria-hidden="true"></i>
+        <div>
+          <div style="font-size:13px;font-weight:500">Rohini Phase 4, Sector 24</div>
+          <div style="font-size:11px;color:var(--color-text-secondary)">North-West Delhi · 110085</div>
+        </div>
+        <button class="btn btn-sm" style="margin-left:auto">Change</button>
+      </div>
+      <input type="text" placeholder="House / flat number (optional)" style="margin-bottom:8px">
+      <input type="text" placeholder="Nearby landmark (optional)">
+    </div>
+    <div style="margin-bottom:12px">
+      <div class="field-label">Your contact</div>
+      <div class="field-hint">So we can send you updates. Pre-filled from your account.</div>
+      <input type="tel" value="+91 98765 43210" style="margin-bottom:8px">
+      <input type="email" value="rajesh.kumar@gmail.com">
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:1rem">
+      <button class="btn" onclick="goStep(2)"><i class="ti ti-arrow-left" style="font-size:13px" aria-hidden="true"></i> Back</button>
+      <button class="btn btn-primary" onclick="goStep(4)">Review <i class="ti ti-arrow-right" style="font-size:13px" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+  <!-- Step 4 — Review & Submit -->
+  <div id="form-step-4" style="display:none">
+    <div class="card" style="margin-bottom:12px">
+      <div class="section-label" style="margin-bottom:12px">Review your complaint</div>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--color-text-secondary)">Category</span><span id="rev-cat" style="font-weight:500">Water</span></div>
+        <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:10px"><span style="color:var(--color-text-secondary)">Description</span><div style="margin-top:4px;color:var(--color-text-primary)">No water supply since 3 days. Tank empty, neighbouring buildings also affected.</div></div>
+        <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:10px;display:flex;justify-content:space-between"><span style="color:var(--color-text-secondary)">Priority</span><span id="rev-pri" class="badge badge-red">High</span></div>
+        <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:10px;display:flex;justify-content:space-between"><span style="color:var(--color-text-secondary)">Location</span><span>Rohini Ph4, Sector 24</span></div>
+        <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:10px;display:flex;justify-content:space-between"><span style="color:var(--color-text-secondary)">Assigned to</span><span style="font-weight:500;color:#185FA5">Delhi Jal Board (DJB)</span></div>
+        <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:10px;display:flex;justify-content:space-between"><span style="color:var(--color-text-secondary)">Expected resolution</span><span>within 2–4 days</span></div>
+      </div>
+    </div>
+    <div class="ai-bubble" style="margin-bottom:1rem">
+      <span style="font-size:11px;font-weight:500;color:#0C447C"><i class="ti ti-sparkles" style="font-size:12px" aria-hidden="true"></i> AI analysis</span><br>
+      <span style="font-size:12px">This matches a pattern of 18 similar reports in Rohini Ph4. Your complaint will be <strong style="font-weight:500">escalated automatically</strong> if DJB doesn't respond within 24 hours.</span>
+    </div>
+    <div style="display:flex;justify-content:space-between">
+      <button class="btn" onclick="goStep(3)"><i class="ti ti-arrow-left" style="font-size:13px" aria-hidden="true"></i> Back</button>
+      <button class="btn btn-primary" onclick="submitComplaint()"><i class="ti ti-send" style="font-size:13px" aria-hidden="true"></i> Submit complaint</button>
+    </div>
+  </div>
+
+  <!-- Success -->
+  <div id="form-success" style="display:none;text-align:center;padding:2rem 1rem">
+    <div style="width:56px;height:56px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">
+      <i class="ti ti-check" style="font-size:28px;color:#27500A" aria-hidden="true"></i>
+    </div>
+    <div style="font-size:18px;font-weight:500;margin-bottom:6px">Complaint filed!</div>
+    <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem">Your complaint ID is</div>
+    <div style="font-size:22px;font-weight:500;font-family:var(--font-mono);color:#185FA5;margin-bottom:1rem">CMP-5094</div>
+    <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1.5rem">You'll receive SMS and WhatsApp updates at <strong style="font-weight:500">+91 98765 43210</strong>. DJB must respond within 24 hours or it escalates to the district officer.</div>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="showScreen('track')"><i class="ti ti-map-pin" style="font-size:13px" aria-hidden="true"></i> Track this complaint</button>
+      <button class="btn" onclick="showScreen('home')">Back to home</button>
+    </div>
+  </div>
+</div>
+
+<!-- TRACK SCREEN -->
+<div class="screen" id="screen-track">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem">
+    <button class="btn btn-sm" onclick="showScreen('home')"><i class="ti ti-arrow-left" style="font-size:13px" aria-hidden="true"></i></button>
+    <div style="font-size:16px;font-weight:500">Track complaint</div>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:1rem">
+    <input type="text" placeholder="Enter complaint ID — e.g. CMP-4021" value="CMP-4021" style="flex:1">
+    <button class="btn btn-primary" style="white-space:nowrap">Track</button>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="font-size:16px;font-weight:500;margin-bottom:2px">No water supply — 3 days</div>
+        <div style="font-size:12px;color:var(--color-text-secondary)">Rohini Ph4, Sector 24 &nbsp;·&nbsp; Water (DJB)</div>
+      </div>
+      <span class="badge badge-amber">In progress</span>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+        <span style="color:var(--color-text-secondary)">Resolution progress</span>
+        <span style="font-weight:500">60%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:60%;background:#378ADD"></div></div>
+      <div style="font-size:11px;color:var(--color-text-secondary)">SLA deadline: 22 Jun 2026 · 2 days remaining</div>
+    </div>
+    <div style="font-size:13px;font-weight:500;margin-bottom:10px">Status timeline</div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot" style="background:#1D9E75"></div>
+        <div class="tl-line"></div>
+        <div><div class="tl-title">Complaint filed</div><div class="tl-time">19 Jun · 9:42 AM</div><div class="tl-body">Complaint CMP-4021 received and logged. Auto-assigned to DJB.</div></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background:#1D9E75"></div>
+        <div class="tl-line"></div>
+        <div><div class="tl-title">Acknowledged by DJB</div><div class="tl-time">19 Jun · 11:15 AM</div><div class="tl-body">Engineer Suresh Kumar assigned. Reference: DJB/2026/4892.</div></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background:#378ADD"></div>
+        <div class="tl-line"></div>
+        <div><div class="tl-title">Field inspection done</div><div class="tl-time">19 Jun · 3:30 PM</div><div class="tl-body">Pipeline blockage identified near Sector 24 junction. Repair team dispatched.</div></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background:#EF9F27;border:1.5px solid #BA7517"></div>
+        <div class="tl-line" style="border-left:1px dashed var(--color-border-tertiary);background:none"></div>
+        <div><div class="tl-title" style="color:#633806">Repair in progress</div><div class="tl-time">Expected: 20 Jun · 6:00 PM</div><div class="tl-body">Water supply expected to resume by evening of 20 Jun.</div></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background:var(--color-border-tertiary)"></div>
+        <div><div class="tl-title" style="color:var(--color-text-secondary)">Resolution & closure</div><div class="tl-time" style="color:var(--color-text-secondary)">Pending</div></div>
+      </div>
+    </div>
+    <div style="border-top:0.5px solid var(--color-border-tertiary);margin-top:14px;padding-top:12px">
+      <div style="font-size:12px;font-weight:500;margin-bottom:6px">Contact assigned officer</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-sm" style="flex:1;justify-content:center"><i class="ti ti-phone" style="font-size:13px" aria-hidden="true"></i> Call engineer</button>
+        <button class="btn btn-sm" style="flex:1;justify-content:center"><i class="ti ti-brand-whatsapp" style="font-size:13px" aria-hidden="true"></i> WhatsApp update</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MY COMPLAINTS SCREEN -->
+<div class="screen" id="screen-my-complaints">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem">
+    <button class="btn btn-sm" onclick="showScreen('home')"><i class="ti ti-arrow-left" style="font-size:13px" aria-hidden="true"></i></button>
+    <div style="font-size:16px;font-weight:500">My complaints</div>
+    <span class="badge badge-blue" style="margin-left:auto">4 total</span>
+  </div>
+  <div class="tab-row">
+    <div class="ptab active" onclick="filterTab(this,'all')">All (4)</div>
+    <div class="ptab" onclick="filterTab(this,'open')">Open (2)</div>
+    <div class="ptab" onclick="filterTab(this,'progress')">In progress (1)</div>
+    <div class="ptab" onclick="filterTab(this,'resolved')">Resolved (1)</div>
+  </div>
+  <div id="complaints-list">
+    <div class="complaint-card" onclick="showScreen('track')" data-status="progress">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:12px;font-family:var(--font-mono);color:var(--color-text-secondary)">CMP-4021</span>
+        <span class="badge badge-amber">In progress</span>
+      </div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:2px">No water supply — 3 days</div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:8px">Rohini Ph4 · Water (DJB) · Filed 19 Jun</div>
+      <div class="progress-track" style="margin:0"><div class="progress-fill" style="width:60%;background:#378ADD"></div></div>
+    </div>
+    <div class="complaint-card" data-status="open">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:12px;font-family:var(--font-mono);color:var(--color-text-secondary)">CMP-4198</span>
+        <span class="badge badge-blue">Open</span>
+      </div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:2px">Streetlight not working near park</div>
+      <div style="font-size:11px;color:var(--color-text-secondary)">Rohini Ph4 · Electricity (BSES) · Filed 16 Jun</div>
+    </div>
+    <div class="complaint-card" data-status="open">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:12px;font-family:var(--font-mono);color:var(--color-text-secondary)">CMP-4302</span>
+        <span class="badge badge-red" style="font-size:10px">SLA breached</span>
+      </div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:2px">Open drain near school entrance</div>
+      <div style="font-size:11px;color:var(--color-text-secondary)">Rohini Ph4 · Sanitation (EDMC) · Filed 11 Jun</div>
+    </div>
+    <div class="complaint-card" data-status="resolved">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:12px;font-family:var(--font-mono);color:var(--color-text-secondary)">CMP-3987</span>
+        <span class="badge badge-green">Resolved</span>
+      </div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:4px">Pothole on main road</div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:8px">Rohini Ph4 · PWD · Filed 2 Jun · Resolved 14 Jun</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px">Rate your experience:</div>
+      <div class="satisfaction-stars" id="stars-3987">
+        <span class="star lit" onclick="rateStar(1)">★</span>
+        <span class="star lit" onclick="rateStar(2)">★</span>
+        <span class="star lit" onclick="rateStar(3)">★</span>
+        <span class="star" onclick="rateStar(4)">★</span>
+        <span class="star" onclick="rateStar(5)">★</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NEARBY SCREEN -->
+<div class="screen" id="screen-nearby">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem">
+    <button class="btn btn-sm" onclick="showScreen('home')"><i class="ti ti-arrow-left" style="font-size:13px" aria-hidden="true"></i></button>
+    <div style="font-size:16px;font-weight:500">Issues near you</div>
+    <span class="badge badge-amber" style="margin-left:auto">Rohini Ph4</span>
+  </div>
+  <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-lg);height:120px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;border:0.5px solid var(--color-border-tertiary)">
+    <div style="text-align:center">
+      <i class="ti ti-map" style="font-size:32px;color:var(--color-text-secondary)" aria-hidden="true"></i>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px">Interactive map — Rohini Ph4 area</div>
+      <div style="font-size:11px;color:var(--color-text-secondary)">12 active issues · 2 hotspots</div>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:2px">Community-reported issues</div>
+    <div class="card" style="padding:.75rem 1rem">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <div style="font-size:13px;font-weight:500">Water supply disruption</div>
+        <span class="badge badge-red">Critical</span>
+      </div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Sector 24 junction · 0.3 km away · 18 reports</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" style="font-size:11px" onclick="showScreen('file-complaint')"><i class="ti ti-plus" style="font-size:11px" aria-hidden="true"></i> Report same issue</button>
+        <button class="btn btn-sm" style="font-size:11px" onclick="showScreen('track')"><i class="ti ti-eye" style="font-size:11px" aria-hidden="true"></i> Follow this</button>
+      </div>
+    </div>
+    <div class="card" style="padding:.75rem 1rem">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <div style="font-size:13px;font-weight:500">Road collapse near school</div>
+        <span class="badge badge-amber">High</span>
+      </div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Sector 22 school road · 0.8 km away · 7 reports</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" style="font-size:11px" onclick="showScreen('file-complaint')"><i class="ti ti-plus" style="font-size:11px" aria-hidden="true"></i> Report same issue</button>
+        <button class="btn btn-sm" style="font-size:11px"><i class="ti ti-share" style="font-size:11px" aria-hidden="true"></i> Share</button>
+      </div>
+    </div>
+    <div class="card" style="padding:.75rem 1rem">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <div style="font-size:13px;font-weight:500">Garbage not collected · 4 days</div>
+        <span class="badge badge-amber">Medium</span>
+      </div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">B-block market · 1.1 km away · 5 reports</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" style="font-size:11px" onclick="showScreen('file-complaint')"><i class="ti ti-plus" style="font-size:11px" aria-hidden="true"></i> Report same issue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE SCREEN -->
+<div class="screen" id="screen-profile">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem">
+    <button class="btn btn-sm" onclick="showScreen('home')"><i class="ti ti-arrow-left" style="font-size:13px" aria-hidden="true"></i></button>
+    <div style="font-size:16px;font-weight:500">My profile</div>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+      <div class="avatar" style="width:44px;height:44px;font-size:15px">RK</div>
+      <div>
+        <div style="font-size:15px;font-weight:500">Rajesh Kumar</div>
+        <div style="font-size:12px;color:var(--color-text-secondary)">Citizen · Rohini Ph4</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.625rem">
+        <div style="font-size:18px;font-weight:500">4</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">complaints</div>
+      </div>
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.625rem">
+        <div style="font-size:18px;font-weight:500">1</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">resolved</div>
+      </div>
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.625rem">
+        <div style="font-size:18px;font-weight:500">3.2</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">avg rating given</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div style="font-size:13px;font-weight:500;margin-bottom:10px">Notification preferences</div>
+    <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><span>SMS updates</span><span class="badge badge-green">On</span></div>
+      <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:10px;display:flex;justify-content:space-between;align-items:center"><span>WhatsApp updates</span><span class="badge badge-green">On</span></div>
+      <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:10px;display:flex;justify-content:space-between;align-items:center"><span>SLA breach alerts</span><span class="badge badge-green">On</span></div>
+      <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:10px;display:flex;justify-content:space-between;align-items:center"><span>Nearby issue alerts</span><span class="badge badge-amber">Area: 2 km</span></div>
+      <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:10px;display:flex;justify-content:space-between;align-items:center"><span>Language</span><span class="badge badge-gray">English</span></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+}
+
+let selectedCat='', selectedPriority='';
+
+function selectCat(el,cat){
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedCat=cat;
+  document.getElementById('next-step1').style.opacity='1';
+  document.getElementById('next-step1').style.pointerEvents='auto';
+  document.getElementById('ai-suggestion').style.display='block';
+  const revCat=document.getElementById('rev-cat');
+  if(revCat) revCat.textContent=cat.charAt(0).toUpperCase()+cat.slice(1);
+}
+
+function selectPriority(el,level){
+  document.querySelectorAll('.priority-chip').forEach(c=>{c.className='priority-chip'});
+  el.classList.add('sel-'+level);
+  selectedPriority=level;
+}
+
+function goStep(n){
+  for(let i=1;i<=4;i++){
+    const el=document.getElementById('form-step-'+i);
+    if(el) el.style.display=i===n?'block':'none';
+  }
+  for(let i=1;i<=4;i++){
+    const sn=document.getElementById('sn'+i);
+    const st=document.getElementById('st'+i);
+    const sl=document.getElementById('sl'+i);
+    if(!sn) continue;
+    if(i<n){sn.className='step-num done';sn.innerHTML='<i class="ti ti-check" style="font-size:11px"></i>';if(sl)sl.className='step-line done';}
+    else if(i===n){sn.className='step-num active';sn.textContent=i;st.className='step-text active';}
+    else{sn.className='step-num pending';sn.textContent=i;st.className='step-text';}
+  }
+}
+
+function submitComplaint(){
+  for(let i=1;i<=4;i++){
+    const el=document.getElementById('form-step-'+i);
+    if(el) el.style.display='none';
+  }
+  document.getElementById('form-success').style.display='block';
+  document.getElementById('form-stepper').style.display='none';
+}
+
+function filterTab(el,filter){
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.complaint-card').forEach(c=>{
+    if(filter==='all') c.style.display='block';
+    else c.style.display=c.dataset.status===filter?'block':'none';
+  });
+}
+
+function rateStar(n){
+  document.querySelectorAll('#stars-3987 .star').forEach((s,i)=>{
+    s.classList.toggle('lit',i<n);
+  });
+}
+</script>

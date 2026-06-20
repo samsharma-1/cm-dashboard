@@ -1,0 +1,565 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.shell { padding: 1.5rem 0; }
+.title { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.sub { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.5rem; }
+.tabs { display: flex; gap: 4px; border-bottom: 0.5px solid var(--color-border-tertiary); margin-bottom: 1.5rem; flex-wrap: wrap; }
+.tab { padding: 8px 14px; font-size: 13px; color: var(--color-text-secondary); cursor: pointer; border-bottom: 2px solid transparent; border-radius: 4px 4px 0 0; transition: all .15s; white-space: nowrap; }
+.tab:hover { color: var(--color-text-primary); }
+.tab.active { color: var(--color-text-primary); border-bottom-color: var(--color-text-primary); font-weight: 500; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* Metric cards */
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.metric { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: .75rem 1rem; }
+.metric-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.metric-value { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+.metric-delta { font-size: 11px; margin-top: 2px; }
+.up { color: var(--color-text-danger); }
+.dn { color: var(--color-text-success); }
+.neu { color: var(--color-text-secondary); }
+
+/* Table */
+.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tbl th { text-align: left; font-weight: 500; font-size: 12px; color: var(--color-text-secondary); padding: 6px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.tbl td { padding: 8px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); vertical-align: middle; }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr:hover td { background: var(--color-background-secondary); }
+
+/* Badges */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+.badge-red { background: var(--color-background-danger); color: var(--color-text-danger); }
+.badge-amber { background: var(--color-background-warning); color: var(--color-text-warning); }
+.badge-green { background: var(--color-background-success); color: var(--color-text-success); }
+.badge-blue { background: var(--color-background-info); color: var(--color-text-info); }
+.badge-gray { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+
+/* Risk bars */
+.risk-bar-wrap { width: 80px; height: 6px; background: var(--color-background-secondary); border-radius: 3px; display: inline-block; vertical-align: middle; }
+.risk-bar { height: 6px; border-radius: 3px; }
+
+/* Map heatmap (ASCII-art style grid) */
+.heatmap-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; margin-bottom: 1rem; }
+.hcell { border-radius: 4px; aspect-ratio: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 500; transition: transform .1s; }
+.hcell:hover { transform: scale(1.15); z-index: 2; position: relative; }
+.zone-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: .5rem; }
+
+/* Scorecard bars */
+.dept-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.dept-name { font-size: 13px; min-width: 110px; color: var(--color-text-primary); }
+.dept-bar-wrap { flex: 1; height: 8px; background: var(--color-background-secondary); border-radius: 4px; }
+.dept-bar { height: 8px; border-radius: 4px; }
+.dept-score { font-size: 13px; font-weight: 500; min-width: 36px; text-align: right; }
+
+/* Copilot */
+.copilot-chat { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem; min-height: 180px; max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
+.msg { max-width: 85%; padding: 8px 12px; border-radius: 12px; font-size: 13px; line-height: 1.5; }
+.msg.ai { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); align-self: flex-start; border-radius: 4px 12px 12px 12px; }
+.msg.user { background: var(--color-background-info); color: var(--color-text-info); align-self: flex-end; border-radius: 12px 4px 12px 12px; }
+.copilot-input-row { display: flex; gap: 8px; }
+.copilot-input-row input { flex: 1; padding: 8px 12px; font-size: 13px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); }
+.copilot-input-row input:focus { outline: none; border-color: var(--color-border-primary); }
+.btn-send { padding: 8px 16px; font-size: 13px; font-weight: 500; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); cursor: pointer; }
+.btn-send:hover { background: var(--color-background-secondary); }
+
+/* Trust graph viz */
+.trust-bars { display: flex; flex-direction: column; gap: 8px; }
+.trust-row { display: flex; align-items: center; gap: 10px; }
+.trust-label { font-size: 12px; color: var(--color-text-secondary); min-width: 90px; }
+.trust-bar-wrap { flex: 1; height: 14px; background: var(--color-background-secondary); border-radius: 3px; overflow: hidden; }
+.trust-bar-fill { height: 100%; border-radius: 3px; display: flex; align-items: center; padding-left: 6px; font-size: 10px; font-weight: 500; transition: width 1s ease; }
+.trust-pct { font-size: 12px; font-weight: 500; min-width: 36px; text-align: right; color: var(--color-text-primary); }
+
+/* Escalation risk gauge */
+.gauge-wrap { display: flex; gap: 12px; flex-wrap: wrap; }
+.gauge-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: .75rem; flex: 1; min-width: 120px; }
+.gauge-title { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.gauge-num { font-size: 28px; font-weight: 500; }
+.gauge-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+
+/* Thinking indicator */
+.thinking { display: flex; gap: 4px; align-items: center; padding: 8px 12px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-text-secondary); animation: bounce 1.2s infinite; }
+.dot:nth-child(2) { animation-delay: .2s; }
+.dot:nth-child(3) { animation-delay: .4s; }
+@keyframes bounce { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-6px);opacity:1} }
+
+/* SLA progress */
+.sla-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.sla-name { font-size: 12px; color: var(--color-text-secondary); min-width: 100px; }
+.sla-bar-wrap { flex: 1; height: 6px; background: var(--color-background-secondary); border-radius: 3px; }
+.sla-bar { height: 6px; border-radius: 3px; }
+.sla-pct { font-size: 12px; font-weight: 500; min-width: 36px; text-align: right; }
+</style>
+
+<div class="shell">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:1.5rem">
+    <div>
+      <div class="title">Delhi CM — Governance Intelligence Platform</div>
+      <div class="sub">Real-time city command dashboard &nbsp;·&nbsp; <span id="live-clock"></span></div>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <span class="badge badge-green" style="font-size:11px">● Live</span>
+      <span style="font-size:12px;color:var(--color-text-secondary)">District: All</span>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-tab="overview">Overview</div>
+    <div class="tab" data-tab="complaints">Complaints</div>
+    <div class="tab" data-tab="heatmap">Hotspot map</div>
+    <div class="tab" data-tab="depts">Department scorecard</div>
+    <div class="tab" data-tab="trust">Citizen trust</div>
+    <div class="tab" data-tab="copilot">Governance copilot</div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="panel active" id="panel-overview">
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Active complaints</div>
+        <div class="metric-value" id="m-total">2,847</div>
+        <div class="metric-delta up">↑ 134 today</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Escalation risk</div>
+        <div class="metric-value" style="color:var(--color-text-danger)" id="m-esc">38</div>
+        <div class="metric-delta up">↑ 5 critical</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">SLA breached</div>
+        <div class="metric-value" style="color:var(--color-text-warning)" id="m-sla">213</div>
+        <div class="metric-delta neu">7.5% of total</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Resolved today</div>
+        <div class="metric-value" style="color:var(--color-text-success)" id="m-res">891</div>
+        <div class="metric-delta dn">↑ 12% vs yesterday</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Governance health</div>
+        <div class="metric-value" id="m-ghi">67<span style="font-size:14px;font-weight:400">/100</span></div>
+        <div class="metric-delta dn">↑ 3 pts this week</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Citizen trust index</div>
+        <div class="metric-value" id="m-cti">71<span style="font-size:14px;font-weight:400">%</span></div>
+        <div class="metric-delta dn">↑ 2% vs last month</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;flex-wrap:wrap">
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:1rem">
+        <div style="font-size:13px;font-weight:500;margin-bottom:12px">Top escalation risks</div>
+        <table class="tbl">
+          <thead><tr><th>Complaint</th><th>Zone</th><th>Risk</th></tr></thead>
+          <tbody>
+            <tr><td>Sewage overflow</td><td>Sangam Vihar</td><td><span class="badge badge-red">Critical</span></td></tr>
+            <tr><td>Power outage 18h+</td><td>Dwarka Sec 12</td><td><span class="badge badge-red">Critical</span></td></tr>
+            <tr><td>Road collapse</td><td>Rohini Ph4</td><td><span class="badge badge-amber">High</span></td></tr>
+            <tr><td>Water supply cut</td><td>Mustafabad</td><td><span class="badge badge-amber">High</span></td></tr>
+            <tr><td>Garbage pile 5+ days</td><td>Karol Bagh</td><td><span class="badge badge-amber">High</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:1rem">
+        <div style="font-size:13px;font-weight:500;margin-bottom:12px">SLA compliance by department</div>
+        <div class="sla-row"><div class="sla-name">Public Works</div><div class="sla-bar-wrap"><div class="sla-bar" style="width:82%;background:#3B8BD4"></div></div><div class="sla-pct" style="color:#185FA5">82%</div></div>
+        <div class="sla-row"><div class="sla-name">Sanitation</div><div class="sla-bar-wrap"><div class="sla-bar" style="width:61%;background:#EF9F27"></div></div><div class="sla-pct" style="color:#854F0B">61%</div></div>
+        <div class="sla-row"><div class="sla-name">Electricity (BSES)</div><div class="sla-bar-wrap"><div class="sla-bar" style="width:74%;background:#3B8BD4"></div></div><div class="sla-pct" style="color:#185FA5">74%</div></div>
+        <div class="sla-row"><div class="sla-name">Water (DJB)</div><div class="sla-bar-wrap"><div class="sla-bar" style="width:55%;background:#E24B4A"></div></div><div class="sla-pct" style="color:#A32D2D">55%</div></div>
+        <div class="sla-row"><div class="sla-name">Transport</div><div class="sla-bar-wrap"><div class="sla-bar" style="width:88%;background:#1D9E75"></div></div><div class="sla-pct" style="color:#0F6E56">88%</div></div>
+        <div class="sla-row"><div class="sla-name">Health (DSHM)</div><div class="sla-bar-wrap"><div class="sla-bar" style="width:79%;background:#3B8BD4"></div></div><div class="sla-pct" style="color:#185FA5">79%</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPLAINTS -->
+  <div class="panel" id="panel-complaints">
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <select id="filter-cat" style="font-size:13px;padding:6px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary)">
+        <option value="">All categories</option>
+        <option>Sanitation</option><option>Water</option><option>Electricity</option><option>Roads</option><option>Health</option>
+      </select>
+      <select id="filter-risk" style="font-size:13px;padding:6px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary)">
+        <option value="">All risk levels</option>
+        <option>Critical</option><option>High</option><option>Medium</option><option>Low</option>
+      </select>
+      <select id="filter-status" style="font-size:13px;padding:6px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary)">
+        <option value="">All statuses</option>
+        <option>Open</option><option>In Progress</option><option>SLA Breached</option><option>Resolved</option>
+      </select>
+      <input id="search-complaints" placeholder="Search zone, category…" style="font-size:13px;padding:6px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);flex:1;min-width:140px">
+    </div>
+    <div style="overflow-x:auto">
+    <table class="tbl" id="complaints-table">
+      <thead><tr><th>ID</th><th>Category</th><th>Description</th><th>Zone</th><th>Dept</th><th>Urgency</th><th>Esc. risk</th><th>Status</th><th>SLA</th></tr></thead>
+      <tbody id="complaints-body"></tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- HEATMAP -->
+  <div class="panel" id="panel-heatmap">
+    <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:10px">Complaint density by zone — click a cell to see zone breakdown</div>
+    <div class="heatmap-grid" id="heatmap-grid"></div>
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:1rem;font-size:11px;color:var(--color-text-secondary)">
+      <span>Low</span>
+      <div style="display:flex;gap:2px">
+        <div style="width:14px;height:14px;border-radius:3px;background:#E6F1FB"></div>
+        <div style="width:14px;height:14px;border-radius:3px;background:#85B7EB"></div>
+        <div style="width:14px;height:14px;border-radius:3px;background:#378ADD"></div>
+        <div style="width:14px;height:14px;border-radius:3px;background:#185FA5"></div>
+        <div style="width:14px;height:14px;border-radius:3px;background:#0C447C"></div>
+      </div>
+      <span>High</span>
+      <span style="margin-left:12px">·</span>
+      <div style="width:14px;height:14px;border-radius:3px;background:#FCEBEB;margin-left:4px"></div>
+      <span>= Hotspot (critical)</span>
+    </div>
+    <div id="zone-detail" style="background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:1rem;font-size:13px;display:none">
+      <div id="zone-detail-content"></div>
+    </div>
+  </div>
+
+  <!-- DEPT SCORECARD -->
+  <div class="panel" id="panel-depts">
+    <div class="metrics" style="margin-bottom:1.5rem">
+      <div class="metric"><div class="metric-label">Avg resolution time</div><div class="metric-value">4.2<span style="font-size:14px;font-weight:400">d</span></div><div class="metric-delta neu">City average</div></div>
+      <div class="metric"><div class="metric-label">Top performer</div><div class="metric-value" style="font-size:16px">Transport</div><div class="metric-delta dn">Score: 91</div></div>
+      <div class="metric"><div class="metric-label">Needs attention</div><div class="metric-value" style="font-size:16px;color:var(--color-text-danger)">DJB Water</div><div class="metric-delta up">Score: 42</div></div>
+    </div>
+    <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:1rem;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:500;margin-bottom:14px">Department governance score <span style="font-size:11px;font-weight:400;color:var(--color-text-secondary)">— composite of SLA, citizen feedback, escalation rate, repeat complaints</span></div>
+      <div id="dept-bars"></div>
+    </div>
+    <div style="overflow-x:auto">
+    <table class="tbl">
+      <thead><tr><th>Department</th><th>Open</th><th>SLA %</th><th>Avg days</th><th>Escalations</th><th>Repeats</th><th>Score</th><th>Trend</th></tr></thead>
+      <tbody>
+        <tr><td>Transport</td><td>87</td><td>88%</td><td>1.9</td><td>3</td><td>12</td><td><span class="badge badge-green">91</span></td><td style="color:var(--color-text-success)">↑ +4</td></tr>
+        <tr><td>Public Works (PWD)</td><td>421</td><td>82%</td><td>3.4</td><td>14</td><td>67</td><td><span class="badge badge-blue">78</span></td><td style="color:var(--color-text-success)">↑ +2</td></tr>
+        <tr><td>Health (DSHM)</td><td>198</td><td>79%</td><td>2.8</td><td>8</td><td>31</td><td><span class="badge badge-blue">75</span></td><td style="color:var(--color-text-secondary)">→ 0</td></tr>
+        <tr><td>Electricity (BSES)</td><td>334</td><td>74%</td><td>3.9</td><td>22</td><td>88</td><td><span class="badge badge-amber">63</span></td><td style="color:var(--color-text-danger)">↓ -3</td></tr>
+        <tr><td>Sanitation (EDMC)</td><td>612</td><td>61%</td><td>5.1</td><td>41</td><td>143</td><td><span class="badge badge-amber">57</span></td><td style="color:var(--color-text-danger)">↓ -6</td></tr>
+        <tr><td>Water (DJB)</td><td>789</td><td>55%</td><td>6.8</td><td>67</td><td>221</td><td><span class="badge badge-red">42</span></td><td style="color:var(--color-text-danger)">↓ -9</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- TRUST -->
+  <div class="panel" id="panel-trust">
+    <div class="metrics" style="margin-bottom:1.5rem">
+      <div class="metric"><div class="metric-label">Overall trust index</div><div class="metric-value">71%</div><div class="metric-delta dn">↑ 2% vs last month</div></div>
+      <div class="metric"><div class="metric-label">Satisfaction rate</div><div class="metric-value">68%</div><div class="metric-delta dn">Post-resolution surveys</div></div>
+      <div class="metric"><div class="metric-label">Repeat filers</div><div class="metric-value">18%</div><div class="metric-delta up">↑ Systemic issue signal</div></div>
+      <div class="metric"><div class="metric-label">Sentiment score</div><div class="metric-value">+0.38</div><div class="metric-delta neu">-1 to +1 scale</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:1rem">
+        <div style="font-size:13px;font-weight:500;margin-bottom:14px">Trust by zone</div>
+        <div class="trust-bars" id="trust-zone-bars"></div>
+      </div>
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:1rem">
+        <div style="font-size:13px;font-weight:500;margin-bottom:14px">Trust by service domain</div>
+        <div class="trust-bars" id="trust-domain-bars"></div>
+      </div>
+    </div>
+    <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:1rem;margin-top:12px">
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px">Recent citizen feedback signals</div>
+      <div style="display:flex;flex-direction:column;gap:8px" id="feedback-list"></div>
+    </div>
+  </div>
+
+  <!-- COPILOT -->
+  <div class="panel" id="panel-copilot">
+    <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:12px">AI Governance Copilot — ask about complaints, hotspots, or policy actions</div>
+    <div class="copilot-chat" id="copilot-messages"></div>
+    <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+      <button class="btn-send" onclick="quickAsk('What are the top 3 systemic issues in Delhi right now?')">Top systemic issues ↗</button>
+      <button class="btn-send" onclick="quickAsk('Which zones need emergency intervention today?')">Emergency zones ↗</button>
+      <button class="btn-send" onclick="quickAsk('Why is DJB Water scoring so low and what should the CM do?')">DJB action plan ↗</button>
+      <button class="btn-send" onclick="quickAsk('Summarize citizen trust trends and recommend interventions.')">Trust summary ↗</button>
+    </div>
+    <div class="copilot-input-row">
+      <input type="text" id="copilot-input" placeholder="Ask the governance copilot…" onkeydown="if(event.key==='Enter')sendCopilot()">
+      <button class="btn-send" onclick="sendCopilot()">Send ↗</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Live clock
+function updateClock(){
+  const now = new Date();
+  document.getElementById('live-clock').textContent = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) + '  ·  ' + now.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+}
+updateClock(); setInterval(updateClock,1000);
+
+// Tabs
+document.getElementById('tabs').addEventListener('click', e => {
+  const t = e.target.closest('.tab'); if(!t) return;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById('panel-'+t.dataset.tab).classList.add('active');
+});
+
+// Complaints data
+const complaints = [
+  {id:'CMP-4821',cat:'Sanitation',desc:'Sewage overflow on main road',zone:'Sangam Vihar',dept:'EDMC',urgency:'Critical',risk:96,status:'SLA Breached',sla:'8d overdue'},
+  {id:'CMP-4798',cat:'Electricity',desc:'Power outage 18+ hours',zone:'Dwarka Sec 12',dept:'BSES',urgency:'Critical',risk:91,status:'In Progress',sla:'2d left'},
+  {id:'CMP-4771',cat:'Roads',desc:'Road collapse near school',zone:'Rohini Ph4',dept:'PWD',urgency:'Critical',risk:87,status:'Open',sla:'1d left'},
+  {id:'CMP-4744',cat:'Water',desc:'No water supply 3 days',zone:'Mustafabad',dept:'DJB',urgency:'High',risk:82,status:'SLA Breached',sla:'5d overdue'},
+  {id:'CMP-4712',cat:'Sanitation',desc:'Uncollected garbage 5+ days',zone:'Karol Bagh',dept:'EDMC',urgency:'High',risk:78,status:'Open',sla:'3d left'},
+  {id:'CMP-4698',cat:'Health',desc:'Open drain near hospital',zone:'Burari',dept:'DSHM',urgency:'High',risk:74,status:'In Progress',sla:'4d left'},
+  {id:'CMP-4671',cat:'Roads',desc:'Pothole causing accidents',zone:'Saket',dept:'PWD',urgency:'Medium',risk:55,status:'Open',sla:'6d left'},
+  {id:'CMP-4642',cat:'Water',desc:'Contaminated water reports',zone:'Trilokpuri',dept:'DJB',urgency:'High',risk:69,status:'SLA Breached',sla:'3d overdue'},
+  {id:'CMP-4618',cat:'Electricity',desc:'Streetlights non-functional',zone:'Lajpat Nagar',dept:'BSES',urgency:'Medium',risk:41,status:'Open',sla:'8d left'},
+  {id:'CMP-4589',cat:'Sanitation',desc:'Drain blocked causing flooding',zone:'Govindpuri',dept:'EDMC',urgency:'High',risk:72,status:'In Progress',sla:'2d left'},
+  {id:'CMP-4554',cat:'Roads',desc:'Bridge repair pending 2 months',zone:'Najafgarh',dept:'PWD',urgency:'Medium',risk:48,status:'Open',sla:'10d left'},
+  {id:'CMP-4521',cat:'Health',desc:'Dengue cluster reported',zone:'Uttam Nagar',dept:'DSHM',urgency:'High',risk:65,status:'In Progress',sla:'1d left'},
+];
+
+let filteredComplaints = [...complaints];
+function renderComplaints(){
+  const body = document.getElementById('complaints-body');
+  const cat = document.getElementById('filter-cat').value;
+  const risk = document.getElementById('filter-risk').value;
+  const status = document.getElementById('filter-status').value;
+  const search = document.getElementById('search-complaints').value.toLowerCase();
+  filteredComplaints = complaints.filter(c => {
+    if(cat && c.cat !== cat) return false;
+    if(status && c.status !== status) return false;
+    if(risk){
+      const map = {Critical:80,High:60,Medium:40,Low:0};
+      const top = {Critical:100,High:80,Medium:60,Low:40};
+      if(c.risk < map[risk] || c.risk > top[risk]) return false;
+    }
+    if(search && !c.desc.toLowerCase().includes(search) && !c.zone.toLowerCase().includes(search) && !c.cat.toLowerCase().includes(search)) return false;
+    return true;
+  });
+  const riskBadge = r => r>=80?'badge-red':r>=60?'badge-amber':r>=40?'badge-blue':'badge-gray';
+  const statusBadge = s => s==='SLA Breached'?'badge-red':s==='Open'?'badge-amber':s==='In Progress'?'badge-blue':'badge-green';
+  const urgBadge = u => u==='Critical'?'badge-red':u==='High'?'badge-amber':u==='Medium'?'badge-blue':'badge-gray';
+  const barColor = r => r>=80?'#E24B4A':r>=60?'#EF9F27':r>=40?'#378ADD':'#1D9E75';
+  body.innerHTML = filteredComplaints.map(c=>`
+    <tr>
+      <td style="font-family:var(--font-mono);font-size:11px">${c.id}</td>
+      <td><span class="badge badge-gray">${c.cat}</span></td>
+      <td style="max-width:160px;font-size:12px">${c.desc}</td>
+      <td style="font-size:12px">${c.zone}</td>
+      <td style="font-size:12px">${c.dept}</td>
+      <td><span class="badge ${urgBadge(c.urgency)}">${c.urgency}</span></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="risk-bar-wrap"><div class="risk-bar" style="width:${c.risk}%;background:${barColor(c.risk)}"></div></div>
+          <span style="font-size:11px;font-weight:500">${c.risk}</span>
+        </div>
+      </td>
+      <td><span class="badge ${statusBadge(c.status)}">${c.status}</span></td>
+      <td style="font-size:11px;color:${c.sla.includes('overdue')?'var(--color-text-danger)':'var(--color-text-secondary)'}">${c.sla}</td>
+    </tr>`).join('');
+}
+renderComplaints();
+['filter-cat','filter-risk','filter-status'].forEach(id=>document.getElementById(id).addEventListener('change',renderComplaints));
+document.getElementById('search-complaints').addEventListener('input',renderComplaints);
+
+// Heatmap
+const zones = [
+  {name:'Sangam Vihar',intensity:5,type:'hotspot',complaints:211},
+  {name:'Dwarka S12',intensity:4,type:'high',complaints:178},
+  {name:'Rohini',intensity:4,type:'high',complaints:156},
+  {name:'Mustafabad',intensity:5,type:'hotspot',complaints:189},
+  {name:'Karol Bagh',intensity:3,type:'med',complaints:134},
+  {name:'Burari',intensity:3,type:'med',complaints:121},
+  {name:'Saket',intensity:2,type:'low',complaints:87},
+  {name:'Trilokpuri',intensity:4,type:'high',complaints:162},
+  {name:'Lajpat Ngr',intensity:2,type:'low',complaints:73},
+  {name:'Govindpuri',intensity:4,type:'high',complaints:147},
+  {name:'Najafgarh',intensity:2,type:'low',complaints:68},
+  {name:'Uttam Ngr',intensity:3,type:'med',complaints:119},
+  {name:'Shahdara',intensity:3,type:'med',complaints:108},
+  {name:'Pitampura',intensity:2,type:'low',complaints:79},
+  {name:'Vasant Kuj',intensity:1,type:'vlow',complaints:44},
+  {name:'Mehrauli',intensity:2,type:'low',complaints:62},
+  {name:'Seelampur',intensity:5,type:'hotspot',complaints:203},
+  {name:'Malviya Ngr',intensity:1,type:'vlow',complaints:38},
+  {name:'Mayur Vihar',intensity:3,type:'med',complaints:112},
+  {name:'Patel Ngr',intensity:2,type:'low',complaints:71},
+  {name:'Hauz Khas',intensity:1,type:'vlow',complaints:31},
+  {name:'Wazirpur',intensity:3,type:'med',complaints:99},
+  {name:'Narela',intensity:4,type:'high',complaints:141},
+  {name:'Bawana',intensity:3,type:'med',complaints:103},
+  {name:'Janakpuri',intensity:2,type:'low',complaints:76},
+  {name:'Tilak Ngr',intensity:2,type:'low',complaints:58},
+  {name:'Okhla',intensity:3,type:'med',complaints:115},
+  {name:'Badarpur',intensity:4,type:'high',complaints:138},
+  {name:'Nand Ngri',intensity:5,type:'hotspot',complaints:196},
+  {name:'Tughlaqabad',intensity:2,type:'low',complaints:67},
+  {name:'Dilshad Gdn',intensity:3,type:'med',complaints:104},
+  {name:'Paschim Vihar',intensity:1,type:'vlow',complaints:42},
+];
+const hColors = {vlow:'#E6F1FB',low:'#85B7EB',med:'#378ADD',high:'#185FA5',hotspot:'#FCEBEB'};
+const hTextColors = {vlow:'#0C447C',low:'#0C447C',med:'#E6F1FB',high:'#E6F1FB',hotspot:'#A32D2D'};
+const grid = document.getElementById('heatmap-grid');
+zones.forEach(z=>{
+  const cell = document.createElement('div');
+  cell.className='hcell';
+  cell.style.background=hColors[z.type];
+  cell.style.color=hTextColors[z.type];
+  cell.title=z.name+': '+z.complaints+' complaints';
+  cell.textContent=z.complaints;
+  cell.onclick=()=>showZone(z);
+  grid.appendChild(cell);
+});
+function showZone(z){
+  const d = document.getElementById('zone-detail');
+  const cats = ['Sanitation','Water','Electricity','Roads','Health'];
+  const vals = cats.map(()=>Math.floor(Math.random()*60+5));
+  document.getElementById('zone-detail-content').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+      <div>
+        <div style="font-weight:500;font-size:14px">${z.name}</div>
+        <div style="font-size:12px;color:var(--color-text-secondary)">${z.complaints} active complaints &nbsp;·&nbsp; <span class="badge badge-${z.type==='hotspot'?'red':z.type==='high'?'amber':'blue'}">${z.type==='hotspot'?'Hotspot':z.type==='high'?'High density':'Moderate'}</span></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      ${cats.map((c,i)=>`<div style="flex:1;min-width:80px"><div style="font-size:11px;color:var(--color-text-secondary)">${c}</div><div style="font-size:18px;font-weight:500">${vals[i]}</div></div>`).join('')}
+    </div>`;
+  d.style.display='block';
+}
+
+// Dept bars
+const depts=[
+  {name:'Transport',score:91,color:'#1D9E75'},
+  {name:'PWD',score:78,color:'#378ADD'},
+  {name:'Health (DSHM)',score:75,color:'#378ADD'},
+  {name:'Electricity (BSES)',score:63,color:'#EF9F27'},
+  {name:'Sanitation (EDMC)',score:57,color:'#EF9F27'},
+  {name:'Water (DJB)',score:42,color:'#E24B4A'},
+];
+document.getElementById('dept-bars').innerHTML=depts.map(d=>`
+  <div class="dept-row">
+    <div class="dept-name">${d.name}</div>
+    <div class="dept-bar-wrap"><div class="dept-bar" style="width:${d.score}%;background:${d.color}"></div></div>
+    <div class="dept-score" style="color:${d.color}">${d.score}</div>
+  </div>`).join('');
+
+// Trust bars
+const trustZones=[
+  {name:'South Delhi',val:81,color:'#1D9E75'},{name:'West Delhi',val:74,color:'#378ADD'},
+  {name:'East Delhi',val:67,color:'#378ADD'},{name:'North Delhi',val:63,color:'#EF9F27'},
+  {name:'North-East',val:58,color:'#EF9F27'},{name:'South-West',val:71,color:'#378ADD'},
+];
+document.getElementById('trust-zone-bars').innerHTML=trustZones.map(t=>`
+  <div class="trust-row">
+    <div class="trust-label">${t.name}</div>
+    <div class="trust-bar-wrap"><div class="trust-bar-fill" style="width:${t.val}%;background:${t.color};color:${t.val>50?'#fff':'transparent'}">${t.val>50?t.val+'%':''}</div></div>
+    <div class="trust-pct">${t.val}%</div>
+  </div>`).join('');
+
+const trustDomains=[
+  {name:'Transport',val:84,color:'#1D9E75'},{name:'Roads',val:72,color:'#378ADD'},
+  {name:'Health',val:70,color:'#378ADD'},{name:'Electricity',val:65,color:'#EF9F27'},
+  {name:'Sanitation',val:58,color:'#EF9F27'},{name:'Water',val:49,color:'#E24B4A'},
+];
+document.getElementById('trust-domain-bars').innerHTML=trustDomains.map(t=>`
+  <div class="trust-row">
+    <div class="trust-label">${t.name}</div>
+    <div class="trust-bar-wrap"><div class="trust-bar-fill" style="width:${t.val}%;background:${t.color};color:${t.val>50?'#fff':'transparent'}">${t.val>50?t.val+'%':''}</div></div>
+    <div class="trust-pct">${t.val}%</div>
+  </div>`).join('');
+
+const feedbacks=[
+  {zone:'Sangam Vihar',text:'Sewage problem not resolved despite 3 complaints filed',sentiment:'negative'},
+  {zone:'Dwarka Sec 12',text:'Electricity department responded within 2 hours — impressed',sentiment:'positive'},
+  {zone:'Mustafabad',text:'Water contamination issue ongoing for a week with no update',sentiment:'negative'},
+  {zone:'Karol Bagh',text:'Roads repaired quickly after reporting, good work',sentiment:'positive'},
+];
+document.getElementById('feedback-list').innerHTML=feedbacks.map(f=>`
+  <div style="display:flex;gap:10px;align-items:start;padding:8px;background:var(--color-background-primary);border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)">
+    <span class="badge ${f.sentiment==='positive'?'badge-green':'badge-red'}" style="white-space:nowrap">${f.sentiment==='positive'?'Positive':'Negative'}</span>
+    <div><div style="font-size:12px;font-weight:500">${f.zone}</div><div style="font-size:12px;color:var(--color-text-secondary)">${f.text}</div></div>
+  </div>`).join('');
+
+// Copilot
+const copilotContext = `You are the AI Governance Copilot for the Delhi Chief Minister's office. You have access to a governance intelligence platform with the following live data:
+- 2847 active complaints across Delhi
+- Top escalation risks: Sewage overflow in Sangam Vihar (risk:96), Power outage in Dwarka Sec 12 (risk:91), Road collapse in Rohini (risk:87), Water cut in Mustafabad (risk:82)
+- Department scores: Transport:91, PWD:78, Health:75, BSES Electricity:63, Sanitation EDMC:57, DJB Water:42
+- Hotspot zones: Sangam Vihar (211 complaints), Seelampur (203 complaints), Nand Nagri (196 complaints), Mustafabad (189 complaints)
+- Citizen trust index: 71% overall. Water (49%), Sanitation (58%) are lowest.
+- Governance health index: 67/100
+- SLA breaches: 213 complaints overdue
+Provide concise, actionable, CM-level policy insights. Be specific about zones, departments, and recommended actions. Keep responses under 200 words.`;
+
+const msgs = [];
+const msgsEl = document.getElementById('copilot-messages');
+
+function addMsg(role, text){
+  msgs.push({role,content:text});
+  const div = document.createElement('div');
+  div.className = 'msg ' + (role==='user'?'user':'ai');
+  div.textContent = text;
+  msgsEl.appendChild(div);
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+  return div;
+}
+
+function addThinking(){
+  const div = document.createElement('div');
+  div.className='msg ai thinking';
+  div.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  msgsEl.appendChild(div);
+  msgsEl.scrollTop=msgsEl.scrollHeight;
+  return div;
+}
+
+// Initial greeting
+addMsg('assistant','Namaskar. I am your Governance Copilot. Today there are 2,847 active complaints, 38 high-escalation risks, and 213 SLA breaches across Delhi. DJB Water and EDMC Sanitation require your immediate attention. Ask me anything about the city\'s governance status.');
+
+async function sendCopilot(){
+  const input = document.getElementById('copilot-input');
+  const q = input.value.trim(); if(!q) return;
+  input.value='';
+  addMsg('user', q);
+  const thinking = addThinking();
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        system: copilotContext,
+        messages: [...msgs.filter(m=>m.role!=='assistant'||msgs.indexOf(m)>0), {role:'user',content:q}]
+      })
+    });
+    const data = await res.json();
+    thinking.remove();
+    const reply = data.content?.[0]?.text || 'Unable to get response. Please try again.';
+    addMsg('assistant', reply);
+  } catch(e){
+    thinking.remove();
+    addMsg('assistant','Error connecting to AI. Check your connection and try again.');
+  }
+}
+
+function quickAsk(q){
+  document.getElementById('copilot-input').value = q;
+  sendCopilot();
+  document.querySelector('[data-tab="copilot"]').click();
+}
+
+// Simulate live metric drift
+setInterval(()=>{
+  const el = document.getElementById('m-total');
+  const v = parseInt(el.textContent.replace(',','')) + Math.floor(Math.random()*3-1);
+  el.textContent = v.toLocaleString('en-IN');
+},4000);
+</script>
